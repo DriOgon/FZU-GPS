@@ -32,9 +32,12 @@ tools/         构建、设计预览、协议测试数据和发布前检查脚�
 
 Windows PowerShell：
 
+中文工作目录下，脚本会临时映射一个空闲英文盘符供 Windows 构建工具使用，结束后撤销；不会移动工程文件，并会恢复调用前的进程环境变量。
+
 ```powershell
 .\tools\build.ps1 -Task Check    # Debug APK、单元/UI 模拟测试、Lint
 .\tools\build.ps1 -Task Debug    # 只构建 Debug APK
+.\tools\build.ps1 -Task DeviceTest # 连接并授权手机后：隔离测试版的界面、截图及加密存储测试
 .\tools\new-signing-key.ps1      # 首次生成自己的本地发布签名；已有签名时拒绝覆盖
 .\tools\build.ps1 -Task Release  # 用本地签名构建 Release APK 并运行 Lint
 ```
@@ -52,7 +55,7 @@ APK 输出在 `android-app/app/build/outputs/apk/`。Release 签名配置为项�
 
 ## 验证与发布
 
-测试使用虚构账号、MockWebServer 和 Robolectric，不向学校提交签到。Python/Kotlin 加密对照数据可用 `python tools/generate_vectors.py` 生成（需 pycryptodome）；设计预览可用 `python tools/render_design.py` 生成（需 Pillow 和中文字体）。预览是设计稿，实际模拟界面截图输出到测试构建目录。
+测试使用虚构账号、MockWebServer 和 Robolectric，不向学校提交签到。Python/Kotlin 加密对照数据可用 `python tools/generate_vectors.py` 生成（需 pycryptodome）；设计预览可用 `python tools/render_design.py` 生成（需 Pillow 和中文字体）。预览是设计稿。真实组件截图由手机上的独立测试版生成，优先通过测试框架的 `additionalTestOutputDir` 导出到构建输出目录，不包含真实账号。Debug 包名带 `.debug`，与正式版隔离。
 
 提交前运行 `python tools/check_secrets.py`。原始脚本、个人配置、工具缓存、签名和 APK 全部排除 Git；只提交脱敏参考版。实测结果与尚未完成的真机验收见 [验证记录](docs/verification.md)。
 

@@ -6,6 +6,16 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+tasks.withType<Test>().configureEach {
+    // Robolectric downloads platform fixtures in the test JVM, which needs the same local proxy.
+    for (key in listOf("http.proxyHost", "http.proxyPort", "https.proxyHost", "https.proxyPort", "http.nonProxyHosts")) {
+        System.getProperty(key)?.let { systemProperty(key, it) }
+    }
+    systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2")
+    systemProperty("maven.repo.local", rootProject.file("../.tools/robolectric").absolutePath)
+    maxHeapSize = "1536m"
+}
+
 val signingFile = rootProject.file("../.signing/release.properties")
 val releaseKeys = Properties().apply {
     if (signingFile.exists()) signingFile.inputStream().use(::load)
@@ -32,6 +42,11 @@ android {
         }
     }
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            resValue("string", "app_name", "福大签到助手·测试")
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -74,4 +89,6 @@ dependencies {
     testImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }

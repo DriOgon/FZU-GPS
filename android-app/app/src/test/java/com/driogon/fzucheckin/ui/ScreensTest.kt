@@ -1,8 +1,6 @@
 package com.driogon.fzucheckin.ui
 
-import android.graphics.Bitmap
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -15,18 +13,12 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], qualifiers = "w390dp-h844dp-xhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreensTest {
     @get:Rule val compose = createComposeRule()
-
-    private fun capture(name: String) {
-        val out = File("build/outputs/ui-previews/$name.png").apply { parentFile.mkdirs() }
-        out.outputStream().use { compose.onRoot().captureToImage().asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it) }
-    }
 
     @Test fun loginAcceptsInputAndShowsPasswordToggle() {
         var user = ""; var calls = 0
@@ -37,7 +29,6 @@ class ScreensTest {
         compose.onNodeWithContentDescription("隐藏密码").assertExists()
         compose.onNodeWithTag("login").performScrollTo().performClick()
         assertEquals("synthetic-account", user); assertEquals(1, calls)
-        capture("login-actual")
     }
 
     @Test fun homeDoesNotSubmitUntilClickedAndProfileCanBeOpened() {
@@ -46,17 +37,14 @@ class ScreensTest {
         assertEquals(0, submissions)
         compose.onNodeWithTag("checkin").performScrollTo().performClick()
         assertEquals(1, submissions)
-        capture("home-actual")
         compose.onNodeWithText("我的").performClick()
         compose.onNodeWithText("24*****01").assertExists()
-        capture("profile-actual")
     }
 
     @Test fun processingAndBusyStatesCannotSubmitAgain() {
         compose.setContent { FzuTheme { FzuApp(demoState(CheckinStatus.PROCESSING).copy(phase = BusyPhase.CONFIRM), { _, _ -> }, {}, {}, {}) } }
         compose.onNodeWithTag("checkin").performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("签到处理中").assertExists()
-        capture("processing-actual")
     }
 
     @Test fun outsideModeRequiresAnAddress() {
@@ -76,6 +64,5 @@ class ScreensTest {
             }
         }
         compose.onNodeWithTag("login").performScrollTo().assertIsDisplayed()
-        capture("large-font-actual")
     }
 }
