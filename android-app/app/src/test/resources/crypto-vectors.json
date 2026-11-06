@@ -1,0 +1,38 @@
+{
+  "passwordVectors": [
+    {
+      "key": "MDEyMzQ1Njc=",
+      "password": "Example_password_123!",
+      "encrypted": "jECI01n+maTFWoG7vDidd/gc7m+vLAjV"
+    },
+    {
+      "key": "MDEyMzQ1Njc4OWFiY2RlZg==",
+      "password": "Example_password_123!",
+      "encrypted": "ylq/ulrlI8sJoPdd9PiRTNGUebW7PRZME6qTlBjxMr8="
+    },
+    {
+      "key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1u",
+      "password": "Example_password_123!",
+      "encrypted": "A3i+B5dRft4QCItSYUL0ZvjkD3lHmjo6QLjr/NrJd8U="
+    },
+    {
+      "key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+      "password": "Example_password_123!",
+      "encrypted": "mu+VvBSDO15/GRISJ2CJ69fh64P0gPe3btFgKZ1i0Bo="
+    }
+  ],
+  "payload": {
+    "campus": "demo-campus",
+    "lon": 119.19,
+    "lat": 26.05,
+    "startTime": "21:00",
+    "endTime": "23:00",
+    "actualLocation": "示例校区 A&B <test>",
+    "caIsNo": "0",
+    "collUnit": "示例学院",
+    "way": 1,
+    "isLate": 0
+  },
+  "encrypted": "3Io/qdIMSbVsaOxMevF7NFfvmXVZ3Rz1FimcWAXMI4s2JUMhSZAOglB6kZApc3EcWkEy8Oep04jdHx2AaP+vWWqoIIu1bAFZnsNnEl5cczTZZ1VT5a58IDMj3/hQgzzirUf6K+l27MVcwHqNW3CLb4tNl7ck6e5+jKGq0W8LBS1yVX8yEBkqMUBOLUvfwkPoZmHcQ7xTSnIbUZRPKOLsG5JZrELUqYAidAbIOWX0PzSpexdB8q9hZqoSNSDbU2Xr",
+  "encoded": "3Io%2FqdIMSbVsaOxMevF7NFfvmXVZ3Rz1FimcWAXMI4s2JUMhSZAOglB6kZApc3EcWkEy8Oep04jdHx2AaP%2BvWWqoIIu1bAFZnsNnEl5cczTZZ1VT5a58IDMj3%2FhQgzzirUf6K%2Bl27MVcwHqNW3CLb4tNl7ck6e5%2BjKGq0W8LBS1yVX8yEBkqMUBOLUvfwkPoZmHcQ7xTSnIbUZRPKOLsG5JZrELUqYAidAbIOWX0PzSpexdB8q9hZqoSNSDbU2Xr"
+}
