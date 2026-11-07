@@ -56,6 +56,8 @@
 - 手机当前为 Android 17 / API 37；旧测试库依赖已移除的系统接口，更新 AndroidX Test Runner 1.7.0、JUnit Extension 1.3.0 和 Espresso 3.7.0 后，目标 profile 仪器测试通过，预览图使用虚构账号。
 - 相关测试库修复见 [AndroidX Test 官方说明](https://developer.android.com/jetpack/androidx/releases/test#espresso-3.7.0)。
 - APK：`deliverables/FZU-GPS-1.0.2.apk`，SHA-256：`1ed589c44ee02d8d094af3ff6322f4d613792ec0b906a2a0c3116037947bd341`。
+- [v1.0.2 Release](https://github.com/DriOgon/FZU-GPS/releases/tag/v1.0.2) 已发布；远程附件校验值与本地安装包一致。
+- 经用户确认，v1.0.1 Release 的旧 APK 和校验附件已撤下，旧版页面引导下载 1.0.2；本地备份、版本标签与 Git 提交历史保留。
 
 ## 后续真机验收清单
 
