@@ -15,7 +15,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35], qualifiers = "w390dp-h844dp-xhdpi")
+@Config(sdk = [35], qualifiers = "w390dp-h844dp-xhdpi", application = android.app.Application::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreensTest {
     @get:Rule val compose = createComposeRule()
@@ -64,5 +64,23 @@ class ScreensTest {
             }
         }
         compose.onNodeWithTag("login").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test fun automationEditingRequiresSaveAndCancelDoesNotChangeSettings() {
+        var saves = 0
+        compose.setContent { FzuTheme { FzuApp(demoState(), { _, _ -> }, {}, {}, {}, { _, _ -> saves++ }) } }
+        compose.onNodeWithText("我的").performClick()
+        compose.onNodeWithTag("autoSwitch").performScrollTo().performClick()
+        compose.onNodeWithTag("autoSave").performScrollTo().assertIsEnabled()
+        assertEquals(0, saves)
+        compose.onNodeWithText("取消").performScrollTo().performClick()
+        compose.onNodeWithTag("autoSave").assertDoesNotExist()
+        assertEquals(0, saves)
+    }
+
+    @Test fun unsavedCredentialsCannotTurnOnAutomation() {
+        compose.setContent { FzuTheme { FzuApp(demoState().copy(credentialSaved = false), { _, _ -> }, {}, {}, {}) } }
+        compose.onNodeWithText("我的").performClick()
+        compose.onNodeWithTag("autoSwitch").performScrollTo().assertIsNotEnabled()
     }
 }

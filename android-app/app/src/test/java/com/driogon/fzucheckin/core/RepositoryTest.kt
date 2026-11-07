@@ -175,4 +175,25 @@ class RepositoryTest {
         assertEquals(ErrorKind.AUTH, assertThrows(CheckinException::class.java) { repo.refresh() }.kind)
         assertEquals(1, calls.size)
     }
+
+    @Test fun persistentGuardRunsAfterLocationCheckBeforeAnySubmission() {
+        assertThrows(CheckinException::class.java) {
+            repo.submit("", SubmissionGuard {
+                assertTrue(calls.any { it.requestUrl!!.encodedPath.endsWith("check.action") })
+                assertEquals(0, submissions())
+                throw CheckinException(ErrorKind.VALIDATION, "synthetic durable storage failure")
+            })
+        }
+        assertEquals(0, submissions())
+        assertEquals(CheckinStatus.SUCCESS, repo.submit("").snapshot.status)
+        assertEquals(1, submissions())
+    }
+
+    @Test fun yesterdayUnknownResultDoesNotBlockANewSchoolWindow() {
+        afterSubmit = ""
+        assertEquals(CheckinStatus.UNKNOWN_RESULT, repo.submit("").snapshot.status)
+        timestamp = (timestamp.toLong() + 86_400_000).toString()
+        assertEquals(CheckinStatus.UNKNOWN_RESULT, repo.submit("").snapshot.status)
+        assertEquals(2, submissions())
+    }
 }

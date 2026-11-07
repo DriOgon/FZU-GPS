@@ -53,12 +53,12 @@ class FzuRepository(
         .connectTimeout(8, TimeUnit.SECONDS).readTimeout(25, TimeUnit.SECONDS)
         .callTimeout(45, TimeUnit.SECONDS).build()
     private var token: String? = null
-    private var pendingSubmission = false
+    private var pendingSubmission: String? = null
     private val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
 
     override fun clearSession() {
         token = null
-        pendingSubmission = false
+        pendingSubmission = null
         cookies.clear()
         client.connectionPool.evictAll()
     }
@@ -132,8 +132,10 @@ class FzuRepository(
             way == 2 -> CheckinStatus.NEEDS_ADDRESS
             else -> CheckinStatus.READY
         }
-        if (state == CheckinStatus.SUCCESS || state == CheckinStatus.PROCESSING) pendingSubmission = false
-        val finalState = if (pendingSubmission && state in listOf(CheckinStatus.READY, CheckinStatus.NEEDS_ADDRESS)) CheckinStatus.UNKNOWN_RESULT else state
+        val window = TimeRules.window(now, start, end)?.first?.toInstant()?.toEpochMilli()
+        val key = "${user.text("FPlanID")}|$window"
+        if (state == CheckinStatus.SUCCESS || state == CheckinStatus.PROCESSING) pendingSubmission = null
+        val finalState = if (pendingSubmission == key && state in listOf(CheckinStatus.READY, CheckinStatus.NEEDS_ADDRESS)) CheckinStatus.UNKNOWN_RESULT else state
         val id = user.text("FDefaultCampus")
         val school = schools(data).firstOrNull { it.text("ID") == id }
         val attn = status.obj("attn")
@@ -143,8 +145,7 @@ class FzuRepository(
             status.text("actualLocation").ifBlank { attn.text("actualLocation") }, data)
     }
 
-    override fun submit(address: String, onConfirming: () -> Unit): SubmitOutcome {
-        if (pendingSubmission) return SubmitOutcome(refresh(), "上次提交结果尚未确认，本次未重复提交")
+    override fun submit(address: String, guard: SubmissionGuard, onConfirming: () -> Unit): SubmitOutcome {
         val before = refresh()
         if (before.status !in listOf(CheckinStatus.READY, CheckinStatus.NEEDS_ADDRESS)) return SubmitOutcome(before)
         if (config.latitude == 0.0 || config.longitude == 0.0) fail(ErrorKind.VALIDATION, "签到坐标未配置")
@@ -164,7 +165,8 @@ class FzuRepository(
             "isLate" to TimeRules.isLate(before.serverNow, before.late, before.start, before.end),
         )
         // Set before issuing the mutation, including HTTP GET: a lost response is not a failed submission.
-        pendingSubmission = true
+        guard.beforeDispatch(before)
+        pendingSubmission = "${before.planId}|${TimeRules.window(before.serverNow, before.start, before.end)?.first?.toInstant()?.toEpochMilli()}"
         var submitted: JsonObject? = null
         var requestFailed = false
         try { submitted = api("clockIn.action", payload)?.takeIf { it.isJsonObject }?.asJsonObject }

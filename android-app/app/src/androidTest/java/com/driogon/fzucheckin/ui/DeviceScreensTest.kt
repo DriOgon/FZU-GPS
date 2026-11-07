@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.driogon.fzucheckin.core.CheckinStatus
+import com.driogon.fzucheckin.automation.AutomationSettings
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -53,6 +54,16 @@ class DeviceScreensTest {
         compose.onNodeWithText("我的").performClick()
         compose.onNodeWithText("24*****01").assertExists()
         capture("profile")
+    }
+    @Test fun automationSettingsUseSyntheticStateOnly() {
+        var saves = 0
+        val state = demoState().copy(automation = AutomationSettings(enabled = true, accountId = "synthetic", lastMessage = "已签到，已跳过（示例）"))
+        compose.setContent { FzuTheme { FzuApp(state, { _, _ -> }, {}, {}, {}, { _, _ -> saves++ }) } }
+        compose.onNodeWithText("我的").performClick()
+        compose.onNodeWithTag("autoResult").performScrollTo().assertIsDisplayed()
+        capture("auto-settings")
+        compose.onNodeWithTag("autoSwitch").performScrollTo().performClick()
+        assertEquals(1, saves)
     }
     @Test fun success() {
         render(demoState(CheckinStatus.SUCCESS))

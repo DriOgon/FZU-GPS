@@ -42,6 +42,7 @@ fun FzuApp(
     onRefresh: () -> Unit,
     onSubmit: (String) -> Unit,
     onClear: () -> Unit,
+    onConfigureAutomation: (Boolean, Int) -> Unit = { _, _ -> },
 ) {
     var tab by rememberSaveable(state.loggedIn) { mutableIntStateOf(0) }
     var address by remember(state.loggedIn) { mutableStateOf("") }
@@ -67,7 +68,7 @@ fun FzuApp(
         val modifier = Modifier.fillMaxSize().padding(padding)
         if (!state.loggedIn) LoginScreen(state, onLogin, modifier)
         else if (tab == 0) HomeScreen(state, address, { address = it }, onRefresh, onSubmit, modifier)
-        else ProfileScreen(state, onClear, modifier)
+        else ProfileScreen(state, onClear, modifier, onConfigureAutomation)
     }
 }
 
@@ -205,7 +206,8 @@ private fun HomeScreen(state: AppState, address: String, onAddress: (String) -> 
 }
 
 @Composable
-private fun ProfileScreen(state: AppState, onClear: () -> Unit, modifier: Modifier) {
+private fun ProfileScreen(state: AppState, onClear: () -> Unit, modifier: Modifier,
+    onConfigureAutomation: (Boolean, Int) -> Unit = { _, _ -> }) {
     var dialog by remember { mutableStateOf<String?>(null) }
     val uri = LocalUriHandler.current
     val context = LocalContext.current
@@ -218,6 +220,7 @@ private fun ProfileScreen(state: AppState, onClear: () -> Unit, modifier: Modifi
                 TextButton(onClick = { dialog = "switch" }, enabled = !state.busy) { Text("更换账号", fontSize = 14.sp) }
             }
         }
+        AutomationCard(state, onConfigureAutomation)
         Group(contentPadding = 0) {
             SettingsRow("清除本机数据", !state.busy) { dialog = "clear" }
             HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = DividerColor)
@@ -236,12 +239,13 @@ private fun ProfileScreen(state: AppState, onClear: () -> Unit, modifier: Modifi
             Text("非学校官方客户端", style = MaterialTheme.typography.bodySmall, color = Muted)
         }
         state.error?.let { Message(it, Failure) }
+        state.notice?.let { Message(it, Warning) }
     }
     if (dialog != null) {
         val help = dialog == "help"
         AlertDialog(onDismissRequest = { dialog = null },
             title = { Text(if (help) "使用说明" else if (dialog == "switch") "更换账号" else "清除本机数据") },
-            text = { Text(if (help) "打开 App 会查询当天计划，不会自动签到。\n\n在学校允许的时间点击签到；提交后会再次查询确认。\n\n遇到验证码请稍后重试。提交超时或显示处理中时先刷新核实，不要重复提交。\n\n位置采用程序配置坐标，签到要求以学校规定为准。"
+            text = { Text(if (help) "自动签到默认关闭。关闭时，打开 App 只查询当天计划，在学校允许的时间点击签到。\n\n可在「我的」设置每日自动签到时间，保存后无需打开 App，系统可能延迟执行。校外方式请手动填写地址。\n\n遇到验证码或认证失败会暂停自动签到，重新登录后请点击恢复。提交超时或显示处理中时先刷新核实，不会自动重发签到请求。\n\n位置采用程序配置坐标，签到要求以学校规定为准。"
                 else "将清除本机保存的账号密码、登录凭证和当前页面数据。之后需要重新登录。") },
             confirmButton = { TextButton(onClick = { if (!help) onClear(); dialog = null }) { Text(if (help) "知道了" else "确认清除") } },
             dismissButton = { if (!help) TextButton(onClick = { dialog = null }) { Text("取消") } })
@@ -284,7 +288,7 @@ private fun BusyLabel(label: String) {
 
 fun maskAccount(value: String): String = if (value.length > 4) value.take(2) + "*".repeat(value.length - 4) + value.takeLast(2) else "*".repeat(value.length)
 
-fun demoState(status: CheckinStatus = CheckinStatus.READY) = AppState(loggedIn = true, username = "240000001",
+fun demoState(status: CheckinStatus = CheckinStatus.READY) = AppState(loggedIn = true, username = "240000001", credentialSaved = true,
     snapshot = Snapshot("张同学", "示例学院", "demo-plan", 1, "21:00", "23:00", "22:00",
         ZonedDateTime.parse("2026-11-06T21:12:08+08:00[Asia/Shanghai]"), true, status, Campus("demo", "示例校区"),
         if (status == CheckinStatus.SUCCESS) "21:12:08（示例）" else ""))

@@ -2,6 +2,12 @@ package com.driogon.fzucheckin.ui
 
 import com.driogon.fzucheckin.core.*
 import com.driogon.fzucheckin.data.CredentialStore
+import com.driogon.fzucheckin.automation.AutomationStore
+import com.driogon.fzucheckin.automation.CheckinCoordinator
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -12,8 +18,13 @@ import org.junit.Test
 import java.time.ZonedDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28], application = android.app.Application::class)
 class ViewModelTest {
     private val dispatcher = StandardTestDispatcher()
+    private lateinit var automation: AutomationStore
+    private fun model(repo: Repo, store: Store, restore: Boolean = true) =
+        CheckinViewModel(CheckinCoordinator(repo, store, automation), io = dispatcher, restore = restore)
     private class Store : CredentialStore {
         var account: Credentials? = null
         override fun load() = account
@@ -31,19 +42,20 @@ class ViewModelTest {
             if (expireOnce) { expireOnce = false; throw CheckinException(ErrorKind.AUTH, "登录过期") }
             return sample
         }
-        override fun submit(address: String, onConfirming: () -> Unit): SubmitOutcome {
+        override fun submit(address: String, guard: SubmissionGuard, onConfirming: () -> Unit): SubmitOutcome {
+            guard.beforeDispatch(sample)
             submissions++; onConfirming()
             return SubmitOutcome(sample.copy(status = CheckinStatus.SUCCESS))
         }
         override fun clearSession() { clears++ }
     }
-    @Before fun setUp() { Dispatchers.setMain(dispatcher) }
-    @After fun tearDown() { Dispatchers.resetMain() }
+    @Before fun setUp() { Dispatchers.setMain(dispatcher); automation = AutomationStore(RuntimeEnvironment.getApplication()) }
+    @After fun tearDown() { automation.close(); Dispatchers.resetMain() }
 
     @Test fun restoringAccountOnlyQueriesAndNeverSubmits() = runTest(dispatcher) {
         val store = Store().apply { account = Credentials("synthetic", "synthetic-password") }
         val repo = Repo()
-        val vm = CheckinViewModel(repo, store, dispatcher)
+        val vm = model(repo, store)
         advanceUntilIdle()
         assertTrue(vm.state.value.loggedIn)
         assertEquals(1, repo.logins)
@@ -52,7 +64,7 @@ class ViewModelTest {
     }
 
     @Test fun repeatedClicksAreIgnoredWhileAnOperationIsActive() = runTest(dispatcher) {
-        val repo = Repo(); val vm = CheckinViewModel(repo, Store(), dispatcher, restore = false)
+        val repo = Repo(); val vm = model(repo, Store(), restore = false)
         vm.login("synthetic", "synthetic-password"); advanceUntilIdle()
         vm.submit(""); vm.submit(""); advanceUntilIdle()
         assertEquals(1, repo.submissions)
@@ -60,7 +72,7 @@ class ViewModelTest {
     }
 
     @Test fun expiredQueryMayLoginAgainButNeverReplaysSubmission() = runTest(dispatcher) {
-        val repo = Repo(); val vm = CheckinViewModel(repo, Store(), dispatcher, restore = false)
+        val repo = Repo(); val vm = model(repo, Store(), restore = false)
         vm.login("synthetic", "synthetic-password"); advanceUntilIdle()
         repo.expireOnce = true
         vm.refresh(); advanceUntilIdle()
@@ -69,7 +81,7 @@ class ViewModelTest {
     }
 
     @Test fun changingAccountClearsStoredCredentialsSessionAndScreenData() = runTest(dispatcher) {
-        val repo = Repo(); val store = Store(); val vm = CheckinViewModel(repo, store, dispatcher, restore = false)
+        val repo = Repo(); val store = Store(); val vm = model(repo, store, restore = false)
         vm.login("synthetic", "synthetic-password"); advanceUntilIdle()
         vm.clearAccount(); advanceUntilIdle()
         assertNull(store.account)

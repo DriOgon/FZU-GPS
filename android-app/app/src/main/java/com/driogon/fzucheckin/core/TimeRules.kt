@@ -43,4 +43,16 @@ object TimeRules {
         val millis = if (n > 10_000_000_000) n.toLong() else (n * 1000).toLong()
         Instant.ofEpochMilli(millis).atZone(china) to true
     } catch (_: Exception) { fallback().withZoneSameInstant(china) to false }
+
+    /** End is exclusive, including the school's entire final allowed minute. */
+    fun window(now: ZonedDateTime, start: String, end: String): Pair<ZonedDateTime, ZonedDateTime>? {
+        val s = minute(start) ?: return null
+        val e = minute(end) ?: return null
+        val local = now.withZoneSameInstant(china)
+        var date = local.toLocalDate()
+        if (s > e && local.hour * 60 + local.minute <= e) date = date.minusDays(1)
+        val first = date.atStartOfDay(china).plusMinutes(s.toLong())
+        val last = date.plusDays(if (s > e) 1 else 0).atStartOfDay(china).plusMinutes(e.toLong() + 1)
+        return first to last
+    }
 }

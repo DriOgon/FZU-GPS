@@ -37,10 +37,14 @@ data class Snapshot(
 
 data class SubmitOutcome(val snapshot: Snapshot, val notice: String? = null)
 
+fun interface SubmissionGuard {
+    fun beforeDispatch(snapshot: Snapshot)
+}
+
 interface CheckinRepository {
     fun login(credentials: Credentials)
     fun refresh(): Snapshot
-    fun submit(address: String, onConfirming: () -> Unit = {}): SubmitOutcome
+    fun submit(address: String, guard: SubmissionGuard = SubmissionGuard {}, onConfirming: () -> Unit = {}): SubmitOutcome
     fun clearSession()
 }
 

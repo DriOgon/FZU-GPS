@@ -10,15 +10,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.driogon.fzucheckin.core.FzuRepository
-import com.driogon.fzucheckin.data.EncryptedCredentialStore
 import com.driogon.fzucheckin.ui.CheckinViewModel
 import com.driogon.fzucheckin.ui.FzuApp
 import com.driogon.fzucheckin.ui.FzuTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val model: CheckinViewModel by viewModels {
-        CheckinViewModel.Factory(FzuRepository(), EncryptedCredentialStore(applicationContext))
+        val services = (application as FzuApplication).services
+        CheckinViewModel.Factory(services.coordinator, services.scheduler)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +30,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             val state by model.state.collectAsStateWithLifecycle()
             FzuTheme {
-                FzuApp(state, model::login, model::refresh, model::submit, model::clearAccount)
+                FzuApp(state, model::login, model::refresh, model::submit, model::clearAccount, model::configureAutomation)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val app = application as FzuApplication
+        app.backgroundScope.launch { try { app.services.scheduler.reconcile() } catch (_: Exception) { } }
     }
 }
