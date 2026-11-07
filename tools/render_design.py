@@ -67,14 +67,21 @@ def page(kind, status='ready'):
         else:
             rect((20,118,370,224))
             text(36,136,'当前账号',13,MUTED);text(36,166,'24*****01',20);text(284,172,'更换账号',13,BLUE)
-            rect((20,244,370,410))
+            rect((20,244,370,558))
+            text(36,260,'自动签到',17)
+            active = status == 'automatic'
+            rect((304,260,350,286),BLUE if active else '#B7BCC4',13)
+            d.ellipse(((328 if active else 307)*S,263*S,(347 if active else 326)*S,282*S),fill='white')
+            text(36,303,'每天按北京时间执行，系统可能延迟',13,MUTED)
+            text(36,344,'每日执行时间    21:05',16,BLUE)
+            text(36,388,'预计11月8日21:05开始，可能延迟' if active else '默认关闭，开启后无需打开 App',13)
+            text(36,426,'最近结果：已签到，已跳过（示例）' if active else '最近结果：尚未执行',13,MUTED)
+            text(36,469,'通知设置        后台运行设置',14,BLUE)
+            text(36,514,'校外方式需手动填写地址',13,MUTED)
+            rect((20,578,370,744))
             for idx,label in enumerate(['清除本机数据','使用说明','源码仓库']):
-                text(36,260+idx*54,label,16);text(338,260+idx*54,'›',20,MUTED)
-                if idx<2:line(36,299+idx*54,354,299+idx*54)
-            rect((20,430,370,554))
-            text(36,447,'关于福大签到助手',16)
-            text(36,480,'版本 1.0.2',13,MUTED)
-            text(36,512,'非学校官方客户端',13,MUTED)
+                text(36,594+idx*54,label,16);text(338,594+idx*54,'›',20,MUTED)
+                if idx<2:line(36,633+idx*54,354,633+idx*54)
         rect((0,766,390,844),'white',0); line(0,766,390,766)
         for x,label,active in [(98,'签到',kind=='home'),(292,'我的',kind=='profile')]:
             color=BLUE if active else MUTED
@@ -91,4 +98,5 @@ for i,(name,img) in enumerate(items):
     board.paste(img,((i%3)*820+20,(i//3)*1770+50))
     ImageDraw.Draw(board).text(((i%3)*820+20,(i//3)*1770+10),name,fill=INK,font=ImageFont.truetype(str(FONT),26))
 board.save(OUT/'overview.png')
-print('Rendered six design previews and overview.')
+page('profile','automatic').save(OUT/'auto-settings.png')
+print('Rendered design previews, automation settings and overview.')
