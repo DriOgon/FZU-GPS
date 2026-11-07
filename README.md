@@ -1,6 +1,6 @@
 # 福大签到助手 · FZU-GPS
 
-Android 原生晚点名工具，Kotlin + Jetpack Compose，Android 8.0 及以上。界面参考 [福 uu](https://fzuhelper.w2fzu.com/) 的蓝白校园工具风格，使用独立名称与图标；不是学校或福 uu 官方客户端。
+Android 原生晚点名工具，Kotlin + Jetpack Compose，Android 8.0 及以上。采用蓝白色调、简洁界面和独立图标，非学校官方客户端。
 
 ![设计预览](docs/previews/overview.png)
 
@@ -64,3 +64,7 @@ APK 输出在 `android-app/app/build/outputs/apk/`。Release 签名配置为项�
 ## 1.0.1 更新（2026-11-07）
 
 修复学校返回 `21:00      ` 等带空格时间时被误判为“当前不在签到时间内”的问题。解析时兼容字段空格，页面显示去掉首尾空格，提交仍保留学校原始时间参数。沿用原签名，可从 1.0.0 直接覆盖升级并保留账号。
+
+## 1.0.2 更新（2026-11-07）
+
+统一 App、文档和预览图中的说明文字。沿用原发布签名，支持覆盖升级并保留账号。

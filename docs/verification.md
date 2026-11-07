@@ -48,7 +48,16 @@
 - 新 APK：`deliverables/FZU-GPS-1.0.1.apk`，1,731,889 字节。
 - APK SHA-256：`075086bc70466de10812a4c2d8cb798a72c20c87f0bbe59951a8da2288eb9926`。
 
-## 真机验收清单
+## 1.0.2 文案与预览验证（2026-11-07）
+
+- App、当前源码、项目说明和设计文档统一采用中性说明，设计预览和真机「我的」截图重新生成。
+- Release 构建和 Lint 通过；安装包内 UTF-8、UTF-16 文字扫描及个人凭据检查通过，发布签名保持一致。
+- 已在手机覆盖安装 1.0.2（versionCode 3），账号保留，「我的」页使用“非学校官方客户端”。
+- 手机当前为 Android 17 / API 37；旧测试库依赖已移除的系统接口，更新 AndroidX Test Runner 1.7.0、JUnit Extension 1.3.0 和 Espresso 3.7.0 后，目标 profile 仪器测试通过，预览图使用虚构账号。
+- 相关测试库修复见 [AndroidX Test 官方说明](https://developer.android.com/jetpack/androidx/releases/test#espresso-3.7.0)。
+- APK：`deliverables/FZU-GPS-1.0.2.apk`，SHA-256：`1ed589c44ee02d8d094af3ff6322f4d613792ec0b906a2a0c3116037947bd341`。
+
+## 后续真机验收清单
 
 连接 Android 手机并在手机上允许 USB 调试后，用独立 `.debug` 包完成虚构数据的界面和存储测试，再安装签名 Release APK。账号密码由用户在手机输入，实际签到由用户手动发起。
 

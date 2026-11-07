@@ -233,7 +233,7 @@ private fun ProfileScreen(state: AppState, onClear: () -> Unit, modifier: Modifi
             Spacer(Modifier.height(12.dp))
             Text("版本 ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = Muted)
             Spacer(Modifier.height(8.dp))
-            Text("非学校或福 uu 官方客户端", style = MaterialTheme.typography.bodySmall, color = Muted)
+            Text("非学校官方客户端", style = MaterialTheme.typography.bodySmall, color = Muted)
         }
         state.error?.let { Message(it, Failure) }
     }

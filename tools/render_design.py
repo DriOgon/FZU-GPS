@@ -73,8 +73,8 @@ def page(kind, status='ready'):
                 if idx<2:line(36,299+idx*54,354,299+idx*54)
             rect((20,430,370,554))
             text(36,447,'关于福大签到助手',16)
-            text(36,480,'版本 1.0.0',13,MUTED)
-            text(36,512,'非学校或福 uu 官方客户端',13,MUTED)
+            text(36,480,'版本 1.0.2',13,MUTED)
+            text(36,512,'非学校官方客户端',13,MUTED)
         rect((0,766,390,844),'white',0); line(0,766,390,766)
         for x,label,active in [(98,'签到',kind=='home'),(292,'我的',kind=='profile')]:
             color=BLUE if active else MUTED
