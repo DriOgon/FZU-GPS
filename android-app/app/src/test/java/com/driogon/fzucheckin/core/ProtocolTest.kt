@@ -65,6 +65,15 @@ class ProtocolTest {
         assertEquals(1, TimeRules.isLate(at("00:20:00"), "00:10", "23:00", "00:30"))
     }
 
+    @Test fun schoolTimesWithPaddingAreParsedLikePythonIntegers() {
+        val now = ZonedDateTime.parse("2026-11-07T21:30:00+08:00[Asia/Shanghai]")
+        assertTrue(TimeRules.inRange(now, "21:00      ", "23:59     "))
+        assertTrue(TimeRules.inRange(now, " \t21 : 00:00 ", "23:59:00\u00a0"))
+        assertEquals(0, TimeRules.isLate(now, "22:00     ", "21:00      ", "23:59     "))
+        assertEquals(1, TimeRules.isLate(now, "21:00     ", "20:00      ", "23:59     "))
+        assertFalse(TimeRules.inRange(now, "25:00      ", "23:59     "))
+    }
+
     @Test fun serverTimestampSupportsSecondsMillisecondsAndFallback() {
         val now = ZonedDateTime.parse("2026-11-06T21:30:00+08:00[Asia/Shanghai]")
         val seconds = now.toEpochSecond()

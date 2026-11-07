@@ -9,8 +9,9 @@ object TimeRules {
     val china: ZoneId = ZoneId.of("Asia/Shanghai")
 
     private fun minute(value: String): Int? = try {
-        val parts = value.split(':')
-        val t = LocalTime.of(parts[0].toInt(), parts[1].toInt())
+        // School time fields can be space-padded; Python int() accepted this padding.
+        val parts = value.trim().split(':')
+        val t = LocalTime.of(parts[0].trim().toInt(), parts[1].trim().toInt())
         t.hour * 60 + t.minute
     } catch (_: Exception) { null }
 

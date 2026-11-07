@@ -155,7 +155,7 @@ private fun HomeScreen(state: AppState, address: String, onAddress: (String) -> 
         }
         if (snapshot != null) {
             Group {
-                InfoRow("签到时间", if (snapshot.start.isBlank() || snapshot.end.isBlank()) "暂无" else "${snapshot.start} — ${snapshot.end}")
+                InfoRow("签到时间", if (snapshot.start.isBlank() || snapshot.end.isBlank()) "暂无" else "${snapshot.start.trim()} — ${snapshot.end.trim()}")
                 HorizontalDivider(color = DividerColor)
                 InfoRow("签到方式", snapshot.wayLabel)
                 HorizontalDivider(color = DividerColor)

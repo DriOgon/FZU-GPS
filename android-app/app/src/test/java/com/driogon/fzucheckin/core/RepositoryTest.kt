@@ -110,6 +110,18 @@ class RepositoryTest {
         assertEquals(CheckinStatus.PROCESSING, repo.submit("").snapshot.status)
     }
 
+    @Test fun paddedSchoolPlanAllowsSigningWithoutRewritingServerPayload() {
+        start = "21:00      "
+        end = "23:59     "
+        assertEquals(CheckinStatus.READY, repo.refresh().status)
+        assertEquals(0, submissions())
+        assertEquals(CheckinStatus.SUCCESS, repo.submit("").snapshot.status)
+        val submitted = calls.first { it.requestUrl!!.encodedPath.endsWith("clockIn.action") }
+        assertEquals(start, decode(submitted).get("startTime").asString)
+        assertEquals(end, decode(submitted).get("endTime").asString)
+        assertEquals(1, submissions())
+    }
+
     @Test fun unconfirmedResponseCannotBeReplayedEvenAfterLoginRefresh() {
         afterSubmit = ""
         assertEquals(CheckinStatus.UNKNOWN_RESULT, repo.submit("").snapshot.status)
