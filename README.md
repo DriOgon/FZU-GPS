@@ -6,7 +6,7 @@ Android 原生晚点名工具，Kotlin + Jetpack Compose，Android 8.0 及以上
 
 ## 使用
 
-1. 安装开发者提供的签名 APK，不需要在手机安装 Python，也不需要 Android Studio。
+1. 从 [GitHub Releases 最新版本](https://github.com/DriOgon/FZU-GPS/releases/latest) 的 Assets 下载签名 APK 并安装，不需要在手机安装 Python，也不需要 Android Studio。
 2. 输入自己的统一身份认证账号密码。凭据使用 Android Keystore 管理的密钥加密后保存在本机，不上传到额外服务器。
 3. 打开 App 查看当天计划，在允许的时间点击「签到」。打开、登录和刷新均不会自动提交。
 4. 以查询确认的结果为准。「处理中」「结果待确认」均不等于成功，请先刷新核实。
